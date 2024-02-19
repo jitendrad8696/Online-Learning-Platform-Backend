@@ -18,6 +18,8 @@ const verifyToken = (req, res, next) => {
     token = tokenValue;
   }
 
+  console.log(token);
+
   jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
       return res.status(401).json({ error: "Unauthorized - Invalid token" });
