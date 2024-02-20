@@ -5,7 +5,7 @@ const verifyToken = (req, res, next) => {
   const tokenFromCookie = req.cookies.token;
   const tokenFromHeader = req.headers.authorization;
 
-  if (!tokenFromCookie || !tokenFromHeader) {
+  if (!tokenFromCookie && !tokenFromHeader) {
     return res.status(401).json({ error: "Unauthorized - No token provided" });
   }
 
