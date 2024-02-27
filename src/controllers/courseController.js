@@ -308,6 +308,29 @@ const updateUserProgress = async (req, res) => {
   }
 };
 
+
+const getWebsiteStats = async (req, res) => {
+  try {
+    const videosResult = await pool.query('SELECT COUNT(*) FROM course_videos');
+    const totalVideos = parseInt(videosResult.rows[0].count);
+
+    const enrolledUsersResult = await pool.query('SELECT COUNT(*) FROM users_courses');
+    const totalEnrolledStudents = parseInt(enrolledUsersResult.rows[0].count);
+
+    const coursesResult = await pool.query('SELECT COUNT(*) FROM courses');
+    const totalCourses = parseInt(coursesResult.rows[0].count);
+
+    res.status(200).json({
+      totalVideos,
+      totalEnrolledStudents,
+      totalCourses,
+    });
+  } catch (error) {
+    console.error("Error fetching website statistics:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 const checkUserEnrollment = async (userId, courseId) => {
   const enrollmentResult = await pool.query(
     'SELECT * FROM users_courses WHERE "userId" = $1 AND "courseId" = $2',
@@ -335,4 +358,5 @@ export {
   enrollUserInCourse,
   deleteCourse,
   updateUserProgress,
+  getWebsiteStats
 };

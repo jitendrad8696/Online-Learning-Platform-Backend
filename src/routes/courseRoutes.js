@@ -9,6 +9,7 @@ import {
   getCourseDetails,
   uploadCourse,
   updateUserProgress,
+  getWebsiteStats,
 } from "../controllers/courseController.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyToken } from "../middlewares/auth.middleware.js";
@@ -22,7 +23,7 @@ router.post(
   uploadCourse
 );
 
-router.get("/", getAPIInfo);
+router.get("/getWebsiteStats", getWebsiteStats);
 
 router.get("/getAllCourses", getAllCourses);
 
