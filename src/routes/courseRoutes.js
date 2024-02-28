@@ -35,8 +35,7 @@ router.post("/:courseId/enrollUser", verifyToken, enrollUserInCourse);
 router.delete("/:courseId/deleteCourse", verifyToken, deleteCourse);
 
 router.post(
-  "/:courseId/:videoNumber/:videoCount/updateUserProgress",
-  verifyToken,
+  "/:userId/:courseId/:videoNumber/:videoCount/updateUserProgress",
   updateUserProgress
 );
 

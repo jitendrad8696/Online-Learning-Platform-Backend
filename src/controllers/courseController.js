@@ -160,35 +160,18 @@ const enrollUserInCourse = async (req, res) => {
         .json({ error: "User is already enrolled in the course" });
     }
 
-    const isAdmin = req.userType === "admin";
-    const isCourseOwner = await checkCourseOwnership(userId, courseId);
-
-    if (isCourseOwner || isAdmin) {
-      return res
-        .status(400)
-        .json({ error: "User cannot enroll in their own course" });
-    }
-
     await pool.query(
-      'INSERT INTO users_courses ("courseId", "userId","progress") VALUES ($1, $2,0)',
-      [courseId, userId]
+      'INSERT INTO users_courses ("courseId", "userId","progress") VALUES ($1, $2,$3)',
+      [courseId, userId, 0]
     );
-
-    const courseDetails = await fetchCourseDetails(courseId, userId);
 
     res.status(201).json({
       message: "User enrolled in the course successfully",
-      courseDetails,
     });
   } catch (error) {
     console.error("Error enrolling user in the course:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-};
-
-//****************THIS FUNCTION NEEDS TO BE TESTED*********************
-const getAPIInfo = (req, res) => {
-  res.send("JMAN Courses API Status: ACTIVE");
 };
 
 //****************THIS FUNCTION NEEDS TO BE TESTED*********************
@@ -238,38 +221,6 @@ const getUserCourses = async (req, res) => {
   }
 };
 
-const fetchCourseDetails = async (courseId, userId) => {
-  const courseResult = await pool.query(
-    'SELECT * FROM courses WHERE "courseId" = $1',
-    [courseId]
-  );
-
-  const course = courseResult.rows[0];
-
-  if (!course) {
-    return null;
-  }
-
-  const videosResult = await pool.query(
-    'SELECT * FROM course_videos WHERE "courseId" = $1 ORDER BY "videoId"',
-    [courseId]
-  );
-
-  const userProgress = await pool.query(
-    'SELECT progress FROM users_courses WHERE "courseId" = $1 AND "userId" = $2',
-    [courseId, userId]
-  );
-  const progress = userProgress.rows[0].progress;
-
-  const videos = videosResult.rows;
-
-  return {
-    ...course,
-    videos,
-    progress,
-  };
-};
-
 const deleteCourse = async (req, res) => {
   try {
     const courseId = req.params.courseId;
@@ -298,13 +249,17 @@ const updateUserProgress = async (req, res) => {
     const courseId = req.params.courseId;
     const videoNumber = req.params.videoNumber;
     const videoCount = req.params.videoCount;
+    const userId = req.params.userId;
+
+    console.table([userId, courseId, videoNumber, videoCount]);
 
     const progressPercentage = Math.round((videoNumber / videoCount) * 100);
 
     const userProgress = await pool.query(
-      'UPDATE users_courses SET "progress" = $1 WHERE "courseId" = $2 AND "userId" = $3 RETURNING "progress"',
-      [progressPercentage, courseId, req.userId]
+      'UPDATE users_courses SET "progress" = $1 WHERE "courseId" = $2 AND "userId" = $3 RETURNING *',
+      [progressPercentage, courseId, userId]
     );
+    console.log(userProgress);
 
     const progress = userProgress.rows[0].progress;
 
@@ -358,7 +313,6 @@ const checkCourseOwnership = async (userId, courseId) => {
 };
 
 export {
-  getAPIInfo,
   getAllCourses,
   getUserCourses,
   getCourseDetails,
