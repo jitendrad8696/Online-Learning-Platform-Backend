@@ -9,6 +9,7 @@ import {
   uploadCourse,
   updateUserProgress,
   getWebsiteStats,
+  editCourse,
 } from "../controllers/courseController.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyToken } from "../middlewares/auth.middleware.js";
@@ -37,6 +38,12 @@ router.delete("/:courseId/deleteCourse", verifyToken, deleteCourse);
 router.post(
   "/:userId/:courseId/:videoNumber/:videoCount/updateUserProgress",
   updateUserProgress
+);
+
+router.put(
+  "/:courseId/editCourse",
+  upload.single("courseBannerImage"),
+  editCourse
 );
 
 export default router;
